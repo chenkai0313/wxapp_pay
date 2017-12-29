@@ -18,9 +18,9 @@ class PayController extends Controller
     public function __construct()
     {
         $config = array(
-            'appid' => '**********',//小程序appid
-            'pay_mchid' => '************',//商户号
-            'pay_apikey' => '*************',//可在微信商户后台生成支付秘钥
+            'appid' => 'wx5e37eded815240ff',//小程序appid
+            'pay_mchid' => '1410153202',//商户号
+            'pay_apikey' => '57D09762574d0e37d7bd5Be1f2fe8046',//可在微信商户后台生成支付秘钥
         );
         $this->config = $config;
     }
@@ -38,7 +38,7 @@ class PayController extends Controller
         #判断是否存在此用户 账户余额
         $exitUsr = User::where('openid', $params['openid'])->first();
         if (!$exitUsr) {
-            return ['code' => 90002, 'msg' => '提现金额不存在'];
+            return ['code' => 90002, 'msg' => '用户不存在'];
         }
         if ($exitUsr['user_account'] > $params['amount']) {
             $config = $this->config;
@@ -50,7 +50,7 @@ class PayController extends Controller
                 'partner_trade_no' => $order_sn,
                 'openid' => $params['openid'],
                 'check_name' => 'NO_CHECK',
-                're_user_name' => '****',
+                're_user_name' => 'hebeit',
                 'amount' => $params['amount'] * 100,
                 'desc' => '提现费用',
                 'spbill_create_ip' => $request->getClientIp(),
