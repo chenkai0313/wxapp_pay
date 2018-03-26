@@ -1,6 +1,6 @@
 <?php
 /**
- * 支付
+ * 支付，提现到零钱，提现到银行卡，二维码，解密敏感信息，银行卡第二第三类元素，敏感字过滤
  * Author: ck
  * Date: 2017/12/26
  */
@@ -16,6 +16,11 @@ use Storage;
 
 class PayController extends Controller
 {
+    const OK = 0;
+    const IllegalAesKey = -41001;
+    const IllegalIv = -41002;
+    const IllegalBuffer = -41003;
+    const DecodeBase64Error = -41004;
 
     public function __construct()
     {
@@ -26,6 +31,41 @@ class PayController extends Controller
             'secret' => '45b54e4ca2e9090f1f3e0318c24c4417',
         );
         $this->config = $config;
+    }
+     /**
+     * 解密用户的敏感信息
+     * @return array
+     */
+    public function getEncryptedData($params)
+    {
+        //在http post/get 传输过程 ‘+’号被转译为空格
+        $sessionKey = preg_replace('/ /', '+', $params['session_key']);
+        $iv = preg_replace('/ /', '+', $params['iv']);
+        $encryptedData = preg_replace('/ /', '+', $params['encryptedData']);
+        if (strlen($sessionKey) != 24) {
+            return self::IllegalAesKey;
+        }
+        $aesKey = base64_decode($sessionKey);
+        if (strlen($iv) != 24) {
+            return self::IllegalIv;
+        }
+        $aesIV = base64_decode($iv);
+
+        $aesCipher = base64_decode($encryptedData);
+
+        $result = openssl_decrypt($aesCipher, "AES-128-CBC", $aesKey, 1, $aesIV);
+        $dataObj = json_decode($result);
+        if ($dataObj == null) {
+            return self::IllegalBuffer;
+        }
+        global $di;
+        $config = $di->config->get('app.wechat');
+        if ($dataObj->watermark->appid != $config['wxapp']['appid']) {
+            return self::IllegalBuffer;
+        }
+        $data = $dataObj;
+        $data = json_decode(json_encode($data), true);
+        return $this->userAdd($data);
     }
 /**
      * 体现到银行卡
