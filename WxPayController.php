@@ -25,10 +25,10 @@ class PayController extends Controller
     public function __construct()
     {
         $config = array(
-            'appid' => 'wxf592d3f69391cdbf',//小程序appid
-            'pay_mchid' => '1485571792',//商户号
-            'pay_apikey' => '08ef9657dce4c78ddde83c3ba84679b1',//可在微信商户后台生成支付秘钥
-            'secret' => '45b54e4ca2e9090f1f3e0318c24c4417',
+            'appid' => '',//小程序appid
+            'pay_mchid' => '',//商户号
+            'pay_apikey' => '',//可在微信商户后台生成支付秘钥
+            'secret' => '',
         );
         $this->config = $config;
     }
